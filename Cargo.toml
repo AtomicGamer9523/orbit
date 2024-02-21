@@ -1,0 +1,55 @@
+[workspace]
+resolver = "2"
+members = [
+    "macros",
+    "orbit",
+
+    "orbit/crossbeam-channel-patched",
+    "orbit/crossbeam-utils-patched",
+]
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+authors = [
+    "Матвей Т <https://matveit.dev> AtomicGamer9523@github"
+]
+license-file = "LICENSE"
+
+[workspace.lints.rust]
+missing_debug_implementations = "warn"
+missing_docs = "warn"
+unused = "warn"
+
+[package]
+name = "orbit"
+description = "Orbit Event System"
+edition.workspace = true
+version.workspace = true
+authors.workspace = true
+license-file.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+path = "orbit/exports.rs"
+name = "orbit"
+
+[dependencies.orbitmacros]
+package = "orbit-macros"
+path = "macros"
+optional = true
+
+[dependencies.orbitcore]
+package = "orbit-core"
+path = "orbit"
+
+[features]
+default = ["macros"]
+macros = ["dep:orbitmacros"]
+
+[[example]]
+required-features = ["macros"]
+path = "example.rs"
+name = "basic"
