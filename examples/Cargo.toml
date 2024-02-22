@@ -12,6 +12,3 @@ path = "../orbit"
 [[example]]
 path = "basic.rs"
 name = "basic"
-
-# [lints.rust]
-# warnings = "allow"

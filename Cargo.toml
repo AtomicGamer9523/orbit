@@ -12,7 +12,7 @@ members = [
 
 [workspace.package]
 edition = "2021"
-version = "0.1.0"
+version = "1.0.0"
 authors = [
     "Матвей Т <https://matveit.dev> AtomicGamer9523@github"
 ]

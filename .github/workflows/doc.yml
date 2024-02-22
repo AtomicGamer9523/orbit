@@ -31,6 +31,6 @@ jobs:
           folder: target/doc
           clean: true
           git-config-email: scout
-          repository-name: AtomicGamer9523/libmath
+          repository-name: AtomicGamer9523/orbit
           commit-message: "Updated docs (auto)"
           single-commit: true
