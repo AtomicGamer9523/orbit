@@ -59,11 +59,3 @@ pub use orbitmacros::*;
 
 #[cfg(feature = "__m")]
 __import_internals__!();
-
-#[doc(hidden)]
-pub mod __docs__ {
-    /// # Architechture
-    ///
-    /// The system is built around the `OrbitBus` trait, which is used to subscribe and emit events.
-    pub mod architechture {}
-}
