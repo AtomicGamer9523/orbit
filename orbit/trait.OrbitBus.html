@@ -1,0 +1,60 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="An event bus that can be used to manage events in the Orbit system."><title>OrbitBus in orbit - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-e935ef01ae1c1829.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="orbit" data-themes="" data-resource-suffix="" data-rustdoc-version="1.78.0-nightly (3406ada96 2024-02-21)" data-channel="nightly" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../static.files/storage-4c98445ec4002617.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-c37d3936c59ababd.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../orbit/index.html">orbit</a><span class="version">1.0.1</span></h2></div><h2 class="location"><a href="#">OrbitBus</a></h2><div class="sidebar-elems"><section><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.init">init</a></li></ul><h3><a href="#object-safety">Object Safety</a></h3><h3><a href="#implementors">Implementors</a></h3></section><h2><a href="index.html">In crate orbit</a></h2></div></nav><div class="sidebar-resizer"></div>
+    <main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../orbit/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Trait <a href="index.html">orbit</a>::<wbr><a class="trait" href="#">OrbitBus</a><button id="copy-path" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><pre class="rust item-decl"><code>pub trait OrbitBus {
+    // Required method
+    fn <a href="#tymethod.init" class="fn">init</a>() -&gt; Self;
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>An event bus that can be used to manage events in the Orbit system.</p>
+<p>This is the central hub for all events in the system.
+It is used to subscribe and emit events.
+(see the disclaimer <a href="#disclaimer">here</a>)</p>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[bus(Message, Player)]
+</span><span class="kw">struct </span>Bus;
+ 
+<span class="kw">struct </span>Player(String);
+
+<span class="kw">struct </span>Message {
+    id: u64,
+    text: String,
+    author: String,
+}
+ 
+<span class="kw">struct </span>MessageHandler;
+
+<span class="kw">impl </span>OrbitEventHandler&lt;Message&gt; <span class="kw">for </span>MessageHandler {
+    <span class="kw">fn </span>handle(<span class="kw-2">&amp;</span><span class="self">self</span>, msg: <span class="kw-2">&amp;</span>Message) {
+        <span class="macro">println!</span>(<span class="string">"'{}' by '{}' (#{})"</span>, msg.text, msg.author, msg.id);
+    }
+}
+
+<span class="kw">fn </span>on_message(message: <span class="kw-2">&amp;</span>Message) {
+    <span class="macro">println!</span>(<span class="string">"{}: {}"</span>, message.author, message.text);
+}
+
+<span class="kw">let </span><span class="kw-2">mut </span>bus = Bus::init();
+bus.sub(|player: <span class="kw-2">&amp;</span>Player| {
+    <span class="macro">println!</span>(<span class="string">"Player joined: {}"</span>, player.<span class="number">0</span>);
+});
+bus.sub(MessageHandler);
+bus.sub(on_message);
+
+bus.emit(Message {
+    id: <span class="number">1</span>,
+    text: <span class="string">"Hello, world!"</span>.to_string(),
+    author: <span class="string">"Alice"</span>.to_string()
+});
+bus.emit(Player(<span class="string">"Bob"</span>.to_string()));</code></pre></div>
+<h2 id="disclaimer"><a class="doc-anchor" href="#disclaimer">§</a>Disclaimer</h2>
+<p>Actually, I lied. For subscribing events, you should use
+<a href="trait.OrbitBusSubscribingManager.html" title="trait orbit::OrbitBusSubscribingManager"><code>OrbitBusSubscribingManager</code></a>,
+and for emitting events, you should use <a href="trait.OrbitBusEmitingManager.html" title="trait orbit::OrbitBusEmitingManager"><code>OrbitBusEmitingManager</code></a>.
+If you want to be able to do both, use the <a href="trait.OrbitBusManager.html" title="trait orbit::OrbitBusManager"><code>OrbitBusManager</code></a> trait.
+This trait is in reality only used to initialize the event bus.
+But the <a href="trait.OrbitBusSubscribingManager.html" title="trait orbit::OrbitBusSubscribingManager"><code>OrbitBusSubscribingManager</code></a> and <a href="trait.OrbitBusEmitingManager.html" title="trait orbit::OrbitBusEmitingManager"><code>OrbitBusEmitingManager</code></a>
+traits gets automatically implemented by the <code>#[bus]</code> macro,
+so you don’t have to worry about it.
+Unless of course, you want to implement it yourself raw.
+In that case, you should avoid the <code>#[bus]</code> macro
+at all costs, as it forbids you from adding anything
+to the <code>Bus</code> struct, which is required for manual implementation.</p>
+</div></details><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.init" class="method"><h4 class="code-header">fn <a href="#tymethod.init" class="fn">init</a>() -&gt; Self</h4></section></summary><div class="docblock"><p>Initializes the event bus.</p>
+</div></details></div><h2 id="object-safety" class="section-header">Object Safety<a href="#object-safety" class="anchor">§</a></h2><div class="object-safety-info">This trait is <b>not</b> <a href="https://doc.rust-lang.org/nightly/reference/items/traits.html#object-safety">object safe</a>.</div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"></div><script src="../trait.impl/orbit_core/trait.OrbitBus.js" async></script></section></div></main></body></html>

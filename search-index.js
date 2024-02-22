@@ -1,0 +1,5 @@
+var searchIndex = new Map(JSON.parse('[\
+["orbit",{"doc":"Orbit Event System","t":"KKKKKXMMMM","n":["OrbitBus","OrbitBusEmitingManager","OrbitBusManager","OrbitBusSubscribingManager","OrbitEventHandler","bus","emit","handle","init","sub"],"q":[[0,"orbit"]],"d":["An event bus that can be used to manage events in the …","This trait is used to manage the emitting of events to the …","This trait is used to both subscribe to and emit events to …","This trait is used to manage the subscribing of event …","This trait is used to handle events in the Orbit system.","A macro to automatically generate the necessary code to …","Emits an event to the event bus.","Function that gets invoked when the event is emitted.","Initializes the event bus.","Subscribes an event handler to the event bus."],"i":[0,0,0,0,0,0,1,3,4,5],"f":"``````{{bc}d{}}{{fc}d{}}{{}h}{{je}d{}{{f{c}}}}","c":[],"p":[[10,"OrbitBusEmitingManager",0],[1,"unit"],[10,"OrbitEventHandler",0],[10,"OrbitBus",0],[10,"OrbitBusSubscribingManager",0]],"b":[]}]\
+]'));
+if (typeof exports !== 'undefined') exports.searchIndex = searchIndex;
+else if (window.initSearch) window.initSearch(searchIndex);
