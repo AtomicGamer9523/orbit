@@ -58,10 +58,7 @@ pub trait OrbitEventHandler<Event> {
     fn handle(&self, event: &Event);
 }
 
-/// This trait is used to manage the event bus in the Orbit system.
-///
-/// This is a trait that must be implemented by the event bus,
-/// for it to properly subscribe and emit events.
+/// This trait is used to both subscribe to and emit events to the event bus.
 ///
 /// It will get automatically implemented if you use the `#[bus]` macro.
 ///
@@ -81,18 +78,30 @@ pub trait OrbitEventHandler<Event> {
 ///     // Code to manage the event handlers goes here
 /// }
 /// struct Message(String);
-/// impl OrbitBusManager<Message> for Bus {
+/// impl OrbitBusSubscribingManager<Message> for Bus {
 ///     fn sub<H>(&mut self, handler: H) where
 ///         H: OrbitEventHandler<Message> + 'static
 ///     {
 ///         // Code to subscribe the handler to the event bus goes here
 ///     }
+/// }
+/// impl OrbitBusEmitingManager<Message> for Bus {
 ///     fn emit(&self, event: Message) {
 ///         // Code to emit the event goes here
 ///     }
 /// }
 /// ```
-pub trait OrbitBusManager<Event> {
+pub trait OrbitBusManager<Event>:
+    OrbitBusSubscribingManager<Event> + 
+    OrbitBusEmitingManager<Event> {}
+
+/// This trait is used to manage the subscribing of event handlers to the event bus.
+///
+/// This is a trait that must be implemented by the event bus,
+/// for it to properly subscribe event handlers.
+///
+/// It will get automatically implemented if you use the `#[bus]` macro.
+pub trait OrbitBusSubscribingManager<Event> {
     /// Subscribes an event handler to the event bus.
     ///
     /// For examples see the [`OrbitBus`] trait.
@@ -100,6 +109,15 @@ pub trait OrbitBusManager<Event> {
     /// [`OrbitBus`]: crate::OrbitBus
     fn sub<H>(&mut self, handler: H) where
         H: OrbitEventHandler<Event> + 'static;
+}
+
+/// This trait is used to manage the emitting of events to the event bus.
+///
+/// This is a trait that must be implemented by the event bus,
+/// for it to properly emit events.
+///
+/// It will get automatically implemented if you use the `#[bus]` macro.
+pub trait OrbitBusEmitingManager<Event> {
     /// Emits an event to the event bus.
     ///
     /// For examples see the [`OrbitBus`] trait.
@@ -160,14 +178,21 @@ pub trait OrbitBusManager<Event> {
 ///
 /// # Disclaimer
 ///
-/// Actually, I lied. For subscribing and emitting events, you should use the
-/// [`OrbitBusManager`] trait. This trait is in reality only used to initialize the event bus.
-/// But the `OrbitBusManager` trait gets automatically implemented by the `#[bus]` macro,
+/// Actually, I lied. For subscribing events, you should use
+/// [`OrbitBusSubscribingManager`],
+/// and for emitting events, you should use [`OrbitBusEmitingManager`].
+/// If you want to be able to do both, use the [`OrbitBusManager`] trait.
+/// This trait is in reality only used to initialize the event bus.
+/// But the [`OrbitBusSubscribingManager`] and [`OrbitBusEmitingManager`]
+/// traits gets automatically implemented by the `#[bus]` macro,
 /// so you don't have to worry about it.
 /// Unless of course, you want to implement it yourself raw.
 /// In that case, you should avoid the `#[bus]` macro
 /// at all costs, as it forbids you from adding anything
 /// to the `Bus` struct, which is required for manual implementation.
+///
+/// [`OrbitBusSubscribingManager`]: crate::OrbitBusSubscribingManager
+/// [`OrbitBusEmitingManager`]: crate::OrbitBusEmitingManager
 pub trait OrbitBus {
     /// Initializes the event bus.
     fn init() -> Self;
@@ -178,7 +203,7 @@ where
     F: Fn(&Event),
 {
     /// Automatically implement [`OrbitEventHandler`]
-    /// for any function that takes an `Event` and returns `()`.
+    /// for any function that takes an `&Event` and returns `()`.
     ///
     /// [`OrbitEventHandler`]: crate::OrbitEventHandler
     #[inline]
@@ -186,3 +211,8 @@ where
         self(event);
     }
 }
+
+impl<H, Event> OrbitBusManager<Event> for H where H:
+    OrbitBusSubscribingManager<Event> +
+    OrbitBusEmitingManager<Event>,
+{}
