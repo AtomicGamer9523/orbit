@@ -1,62 +1,69 @@
-//! Orbit Core
+//! Orbit Event System
+//!
+//! Focused on simplicity and performance.
+//!
+//! # Example using the `#[bus]` macro
+//!
+//! ```rust
+//! # use orbit::*;
+//! #[bus(Message, Player)]
+//! struct Bus;
+//! 
+//! struct Player(String);
+//!
+//! struct Message {
+//!     id: u64,
+//!     text: String,
+//!     author: String,
+//! }
+//! 
+//! struct MessageHandler;
+//!
+//! impl OrbitEventHandler<Message> for MessageHandler {
+//!     fn handle(&self, msg: &Message) {
+//!         println!("'{}' by '{}' (#{})", msg.text, msg.author, msg.id);
+//!     }
+//! }
+//!
+//! fn on_message(message: &Message) {
+//!     println!("{}: {}", message.author, message.text);
+//! }
+//!
+//! # fn main() {
+//! let mut bus = Bus::init();
+//! bus.sub(|player: &Player| {
+//!     println!("Player joined: {}", player.0);
+//! });
+//! bus.sub(MessageHandler);
+//! bus.sub(on_message);
+//!
+//! bus.emit(Message {
+//!     id: 1,
+//!     text: "Hello, world!".to_string(),
+//!     author: "Alice".to_string()
+//! });
+//! bus.emit(Player("Bob".to_string()));
+//! # }
+//! ```
+//!
+//! For the architechture of the system, see the [here]
+//!
+//! [here]: crate::__docs__::architechture
 
 #![no_std]
 
-extern crate alloc;
-use alloc::string::String;
-use alloc::boxed::Box;
-use alloc::vec::Vec;
-mod impls;
+pub use orbitcore::{OrbitBus, OrbitEventHandler, OrbitBusManager};
 
-/// Orbit Event
-///
-/// An event that can be emitted and handled by the OrbitBus
-///
-/// # Example
-///
-/// ```rust
-/// # use orbit::*;
-/// #[derive(OrbitEvent)]
-/// struct MessageEvent {
-///     message: String,
-///     author: String,
-/// }
-/// 
-/// fn on_message(event: &MessageEvent) {
-///     println!("{}: {}", event.author, event.message);
-/// }
-///
-/// #[bus(events = [MessageEvent])]
-/// struct Bus;
-///
-/// let mut bus = Bus::init();
-/// bus.on(on_message);
-/// bus.emit(MessageEvent {
-///     message: "Hello, World!".to_string(),
-///     author: "Anonymous".to_string(),
-/// });
-/// ```
-pub trait OrbitEvent {
-    fn name(&self) -> &'static str;
-}
+#[cfg(feature = "__m")]
+pub use orbitmacros::*;
 
-pub trait OrbitEventHandler<E>
-where
-    E: OrbitEvent,
-{
-    fn handle(&self, event: &E);
-}
+#[cfg(feature = "__m")]
+__import_internals__!();
 
-pub type Handlers<E> = Array<Heap<dyn OrbitEventHandler<E>>>;
-pub type Array<T> = Vec<T>;
-pub type Heap<T> = Box<T>;
-
-pub trait OrbitBusEventHandler<E: OrbitEvent> {
-    fn on<H>(&mut self, handler: H) where
-        H: OrbitEventHandler<E> + 'static;
-    fn emit(&self, event: E);
-}
-
-pub trait OrbitBus {
-    fn init() -> Self;
+#[doc(hidden)]
+pub mod __docs__ {
+    /// # Architechture
+    ///
+    /// The system is built around the `OrbitBus` trait, which is used to subscribe and emit events.
+    pub mod architechture {}
 }

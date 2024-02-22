@@ -1,13 +1,33 @@
 [package]
-name = "orbit-core"
-description = "Core of Orbit"
+name = "orbit"
+description = "Orbit Event System"
 edition.workspace = true
 version.workspace = true
 authors.workspace = true
 license-file.workspace = true
 
-[lib]
-path = "lib.rs"
-
 [lints]
 workspace = true
+
+[lib]
+path = "lib.rs"
+name = "orbit"
+
+[dependencies.orbitmacros]
+default-features = false
+package = "orbit-macros"
+optional = true
+path = "macros"
+
+[dependencies.orbitcore]
+package = "orbit-core"
+path = "core"
+
+[features]
+default = ["macros-v1"]
+
+# features for macros, see macros/Cargo.toml for more details
+macros-v1 = ["__m", "orbitmacros/v1"]
+
+# Internal feature for enabling macros
+__m = ["dep:orbitmacros"]

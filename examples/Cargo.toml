@@ -1,0 +1,17 @@
+[package]
+name = "examples"
+description = "Examples"
+edition.workspace = true
+version.workspace = true
+authors.workspace = true
+license-file.workspace = true
+
+[dependencies.orbit]
+path = "../orbit"
+
+[[example]]
+path = "basic.rs"
+name = "basic"
+
+# [lints.rust]
+# warnings = "allow"
